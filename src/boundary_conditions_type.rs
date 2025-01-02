@@ -40,33 +40,70 @@ impl DirichletBoundaryConditions {
             u[[x_start, point.1]] = (self.left_boundary)(real_points[point.1].1);
             u[[x_end-1, point.1]] = (self.right_boundary)(real_points[point.1].1);
         }
-        // for point in points.iter() {
-        //     // Check if the point is on the left boundary
-            
-        //     if point.0 == x_start {
-        //         u[[point.0, point.1]] 
-        //         = (self.left_boundary)(real_points[point.1].1);
-        //     }
-        //     // Check if the point is on the right boundary
-        //     else if point.0 == x_end {
-        //         u[[point.0, point.1]] 
-        //         = (self.right_boundary)(real_points[point.1].1);
-        //     }
-        //     //Check if the point is on the down boundary
-        //     else if point.1 == y_start
-        //     && point.0 != x_start && point.0 != x_end{
-        //         u[[point.0, point.1]] 
-        //         = (self.down_boundary)(real_points[point.0].0);
-        //     }
-        //     // Check if the point is on the up boundary
-        //     else if point.1 == y_end
-        //     && point.0 != x_start && point.0 != x_end{
-        //         u[[point.0, point.1]] 
-        //         = (self.up_boundary)(real_points[point.0].0);
-        //     }
-        // }
+
         // Return the values of the function at the boundary
         u
     }
-} 
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test the new function
+    #[test]
+    fn test_new_dirichlet_boundary_conditions() {
+        // Define the boundary conditions
+        let up = Box::new(|x: f64| x + 1.0);
+        let down = Box::new(|x: f64| x + 2.0);
+        let left = Box::new(|x: f64| x + 3.0);
+        let right = Box::new(|x: f64| x + 4.0);
+
+        // Create the DirichletBoundaryConditions struct
+        let bc = DirichletBoundaryConditions::
+        new(up, down, left, right);
+
+        // Check if the values are correct
+        assert_eq!((bc.up_boundary)(1.0), 2.0);
+        assert_eq!((bc.down_boundary)(1.0), 3.0);
+        assert_eq!((bc.left_boundary)(1.0), 4.0);
+        assert_eq!((bc.right_boundary)(1.0), 5.0);
+    }
+
+    // Test the get_u_at_boundary function
+    #[test]
+    fn test_get_u_at_boundary() {
+        // Define the boundary conditions
+        let up = Box::new(|x: f64| x + 1.0);
+        let down = Box::new(|x: f64| x + 2.0);
+        let left = Box::new(|x: f64| x + 3.0);
+        let right = Box::new(|x: f64| x + 4.0);
+
+        // Create the DirichletBoundaryConditions struct
+        let bc = DirichletBoundaryConditions::
+        new(up, down, left, right);
+
+        // Define everything needed for the test
+        let points = vec![(0, 0), (1, 1), (2, 2)];
+        let real_points = vec![(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)];
+        let x_start = 0;
+        let y_start = 0;
+        let x_end = 3;
+        let y_end = 3;
+        let f = Array2::<f64>::zeros((3, 3));
+
+        // Call the function
+        let u = bc.get_u_at_boundary(&points, &real_points, 
+            x_start, y_start, x_end, y_end, f);
+
+        // Check if the values are correct
+        assert_eq!(u[[0, 0]], 2.0); // down_boundary at (0, 0)
+        assert_eq!(u[[0, 2]], 1.0); // up_boundary at (0, 2)
+        assert_eq!(u[[2, 0]], 2.0); // down_boundary at (2, 0)
+        assert_eq!(u[[2, 2]], 3.0); // up_boundary at (2, 2)
+        assert_eq!(u[[0, 0]], 3.0); // left_boundary at (0, 0)
+        assert_eq!(u[[2, 0]], 4.0); // right_boundary at (2, 0)
+        assert_eq!(u[[0, 2]], 3.0); // left_boundary at (0, 2)
+        assert_eq!(u[[2, 2]], 4.0); // right_boundary at (2, 2)
+    }
+}
 

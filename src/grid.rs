@@ -49,3 +49,50 @@ impl Grid {
         }).collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test the new function
+    #[test]
+    fn test_create_grid() {
+        // Create a new grid
+        let grid = Grid::create_grid(2, 2);
+
+        // Check the width, height, and number of points
+        assert_eq!(grid.width, 2);
+        assert_eq!(grid.height, 2);
+        assert_eq!(grid.points.len(), 9); // (0,0) to (2,2) inclusive
+    }
+
+    // Test the print_points function
+    #[test]
+    fn test_print_points() {
+        // Create a new grid
+        let grid = Grid::create_grid(2, 2);
+
+        // Call the print_points function to ensure that the systems doesn't panic
+        grid.print_points();
+    }
+
+    // Test the get_real_points function
+    #[test]
+    fn test_get_real_points() {
+        // Create a new grid
+        let grid = Grid::create_grid(2, 2);
+
+        // Get the real points
+        let real_points = grid.get_real_points(0.0, 0.0, 1.0, 1.0);
+
+        // Check the real points
+        let expected_points = vec![
+            (0.0, 0.0), (1.0, 0.0), (2.0, 0.0),
+            (0.0, 1.0), (1.0, 1.0), (2.0, 1.0),
+            (0.0, 2.0), (1.0, 2.0), (2.0, 2.0),
+        ];
+
+        // Check the real points
+        assert_eq!(real_points, expected_points);
+    }
+}
