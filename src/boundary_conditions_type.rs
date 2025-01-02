@@ -1,14 +1,7 @@
 
-/// Represents the type of the boundary condition.
-//#[derive(Debug, Clone, PartialEq, Hash, Eq)]
+use ndarray::Array2;
 
-// pub enum BoundaryConditionsType{
-//     Dirichlet,
-//     Neumann,
-//     Periodic,
-//     None,
-// }
-
+/// Represents the boundary condition(for now only works for Dirichlet BC).
 pub struct DirichletBoundaryConditions {
     pub up_boundary: Box<dyn Fn(f64) -> f64>,
     pub down_boundary: Box<dyn Fn(f64) -> f64>,
@@ -17,6 +10,9 @@ pub struct DirichletBoundaryConditions {
 }    
 
 impl DirichletBoundaryConditions {
+
+    ///# New Dirichlet Boundary Conditions
+    /// Creates a new instance of the DirichletBoundaryConditions struct.
     pub fn new(
         up_boundary: Box<dyn Fn(f64) -> f64>,
         down_boundary: Box<dyn Fn(f64) -> f64>,
@@ -30,25 +26,47 @@ impl DirichletBoundaryConditions {
             right_boundary,
         }
     }
-    pub fn get_u_at_boundary(&self, real_points: &Vec<(f64, f64)>, x_start: f64
-    ,y_start: f64, x_end: f64, y_end: f64) 
-    -> Vec<(f64, f64)> {
-        let mut result = Vec::new();
-        for point in real_points.iter() {
-            if point.0 == x_start {
-                result.push((point.0, (self.left_boundary)(point.1)));
-            }
-            else if point.0 == x_end {
-                result.push((point.0, (self.right_boundary)(point.1)));
-            }
-            else if point.1 == y_start && point.0 != x_start && point.0 != x_end {
-                result.push(((self.down_boundary)(point.0), point.1));
-            }
-            else if point.1 == y_end && point.0 != x_start && point.0 != x_end {
-                result.push(((self.up_boundary)(point.0), point.1));
-            }
+
+    ///# Get U at Boundary
+    /// Returns the values of the function at the boundary.
+    pub fn get_u_at_boundary(&self, points:&Vec<(usize,usize)> , real_points: &Vec<(f64, f64)>
+    , x_start: usize, y_start: usize, x_end:usize, y_end:usize, mut u: Array2<f64>) 
+    -> Array2<f64> {
+        // Iterate over the points
+        // Check if the point is on the boundary and set the value of the function
+        for point in points.iter() {
+            u[[point.0, y_start]] = (self.down_boundary)(real_points[point.0].0);
+            u[[point.0, y_end-1]] = (self.up_boundary)(real_points[point.0].0);
+            u[[x_start, point.1]] = (self.left_boundary)(real_points[point.1].1);
+            u[[x_end-1, point.1]] = (self.right_boundary)(real_points[point.1].1);
         }
-        result
+        // for point in points.iter() {
+        //     // Check if the point is on the left boundary
+            
+        //     if point.0 == x_start {
+        //         u[[point.0, point.1]] 
+        //         = (self.left_boundary)(real_points[point.1].1);
+        //     }
+        //     // Check if the point is on the right boundary
+        //     else if point.0 == x_end {
+        //         u[[point.0, point.1]] 
+        //         = (self.right_boundary)(real_points[point.1].1);
+        //     }
+        //     //Check if the point is on the down boundary
+        //     else if point.1 == y_start
+        //     && point.0 != x_start && point.0 != x_end{
+        //         u[[point.0, point.1]] 
+        //         = (self.down_boundary)(real_points[point.0].0);
+        //     }
+        //     // Check if the point is on the up boundary
+        //     else if point.1 == y_end
+        //     && point.0 != x_start && point.0 != x_end{
+        //         u[[point.0, point.1]] 
+        //         = (self.up_boundary)(real_points[point.0].0);
+        //     }
+        // }
+        // Return the values of the function at the boundary
+        u
     }
 } 
 

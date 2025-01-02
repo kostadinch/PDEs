@@ -1,3 +1,4 @@
+/// Region struct to define the region of interest for the simulation
 pub struct Region {
     pub x_start: f64,
     pub x_end: f64,
@@ -6,6 +7,8 @@ pub struct Region {
 }
 
 impl Region {
+    ///# New Region
+    /// Creates a new instance of the Region struct.
     pub fn new(x_start: f64, x_end: f64, y_start: f64, y_end: f64) -> Self {
         Region {
             x_start,
@@ -14,7 +17,10 @@ impl Region {
             y_end,
         }
     }
-    pub fn get_grid_dimension(&self, dx: f64, dy: f64) -> (usize, usize) {
+
+    ///# Get Grid Dimensions
+    /// Returns the width and height of the grid.
+    pub fn get_grid_dimensions(&self, dx: f64, dy: f64) -> (usize, usize) {
         let width = ((self.x_end - self.x_start) / dx).abs() as usize;
         let height = ((self.y_end - self.y_start) / dy).abs() as usize;
         (width, height)
